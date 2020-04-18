@@ -81,6 +81,14 @@ const EventDashboard = () => {
     })
   };
 
+  const handleDeleteEvent = (id) => {
+    setEvents(events => {
+      return events.filter(event => {
+        return event.id !== id;
+      })
+    })
+  };
+
   const handleSelectEvent = (event) => {
     setSelectedEvent(event);
     setIsOpen(true);
@@ -94,7 +102,7 @@ const EventDashboard = () => {
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList events={events} selectEvent={handleSelectEvent}/>
+        <EventList deleteEvent={handleDeleteEvent} events={events} selectEvent={handleSelectEvent}/>
       </Grid.Column>
       <Grid.Column width={6}>
         <Button onClick={handleFormOpen} positive content= 'Create Event'/>

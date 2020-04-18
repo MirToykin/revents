@@ -18,7 +18,7 @@ const EventForm = ({close, createEvent, updateEvent, selectedEvent, setSelectedE
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (selectedEvent) {
+    if (formFields.id) {
       updateEvent({...formFields});
       setSelectedEvent(null);
     } else {
