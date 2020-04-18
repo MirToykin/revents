@@ -8,7 +8,7 @@ const eventsFromDashboard = [
   {
     id: '1',
     title: 'Trip to Tower of London',
-    date: '2018-03-27T11:00:00+00:00',
+    date: '2018-03-27',
     category: 'culture',
     description:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sollicitudin ligula eu leo tincidunt, quis scelerisque magna dapibus. Sed eget ipsum vel arcu vehicula ullamcorper.',
@@ -32,7 +32,7 @@ const eventsFromDashboard = [
   {
     id: '2',
     title: 'Trip to Punch and Judy Pub',
-    date: '2018-03-28T14:00:00+00:00',
+    date: '2018-03-28',
     category: 'drinks',
     description:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sollicitudin ligula eu leo tincidunt, quis scelerisque magna dapibus. Sed eget ipsum vel arcu vehicula ullamcorper.',
@@ -59,6 +59,7 @@ const eventsFromDashboard = [
 const EventDashboard = () => {
   const [events, setEvents] = useState(eventsFromDashboard);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleCreateEvent = (newEvent) => {
     newEvent.id = cuid();
@@ -67,14 +68,43 @@ const EventDashboard = () => {
       return [...prevEvents, newEvent];
     });
   };
+
+  const handleUpdateEvent = (updatedEvent) => {
+    setEvents(events => {
+      return events.map(event => {
+        if (event.id === updatedEvent.id) {
+          return {...updatedEvent};
+        } else {
+          return event;
+        }
+      })
+    })
+  };
+
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);
+    setIsOpen(true);
+  };
+
+  const handleFormOpen = () => {
+    setIsOpen(true);
+    setSelectedEvent(null);
+  };
+
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList events={events}/>
+        <EventList events={events} selectEvent={handleSelectEvent}/>
       </Grid.Column>
       <Grid.Column width={6}>
-        <Button onClick={() => setIsOpen(true)} positive content= 'Create Event'/>
-        {isOpen && <EventForm close={() => setIsOpen(false)} createEvent={handleCreateEvent}/>}
+        <Button onClick={handleFormOpen} positive content= 'Create Event'/>
+        {isOpen && <EventForm close={() => setIsOpen(false)}
+                              createEvent={handleCreateEvent}
+                              updateEvent={handleUpdateEvent}
+                              selectedEvent={selectedEvent}
+                              setSelectedEvent={setSelectedEvent}
+                              key={selectedEvent ? selectedEvent.id : 0}
+        />}
       </Grid.Column>
     </Grid>
   );

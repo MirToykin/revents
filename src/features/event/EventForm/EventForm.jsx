@@ -1,24 +1,43 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Form, Segment} from "semantic-ui-react";
 
-const EventForm = ({close, createEvent}) => {
+const EventForm = ({close, createEvent, updateEvent, selectedEvent, setSelectedEvent}) => {
+  const [formFields, setFormFields] = useState({
+    title: '',
+    date: '',
+    city: '',
+    venue: '',
+    hostedBy: ''
+  });
 
-  const [title, setTitle] = useState('');
-  const [date, setEventDate] = useState('');
-  const [city, setCity] = useState('');
-  const [venue, setVenue] = useState('');
-  const [hostedBy, setHostedBy] = useState('');
+  useEffect(() => {
+    if(selectedEvent) setFormFields(selectedEvent);
+  }, [selectedEvent]);
+
+  const {title, date, city, venue, hostedBy} = formFields;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createEvent({
-      title,
-      date,
-      city,
-      venue,
-      hostedBy
-    });
+    if (selectedEvent) {
+      updateEvent({...formFields});
+      setSelectedEvent(null);
+    } else {
+      createEvent({...formFields});
+    }
     close();
+  };
+
+  const handleFormFieldChange = (e) => {
+    const {name, value} = e.target;
+    setFormFields(prevFields => ({
+      ...prevFields,
+      [name]: value
+    }));
+  };
+
+  const handleCancel = () => {
+    close();
+    setSelectedEvent(null);
   };
 
   return (
@@ -26,28 +45,32 @@ const EventForm = ({close, createEvent}) => {
       <Form>
         <Form.Field>
           <label>Event Title</label>
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Title"/>
+          <input name='title' value={title} onChange={handleFormFieldChange} placeholder="Title"/>
         </Form.Field>
         <Form.Field>
           <label>Event Date</label>
-          <input value={date} onChange={e => setEventDate(e.target.value)} type="date" placeholder="Event Date"/>
+          <input name='date' value={date} onChange={handleFormFieldChange} type="date"
+                 placeholder="Event Date"/>
         </Form.Field>
         <Form.Field>
           <label>City</label>
-          <input value={city} onChange={e => setCity(e.target.value)} placeholder="City event is taking place"/>
+          <input name='city' value={city} onChange={handleFormFieldChange}
+                 placeholder="City event is taking place"/>
         </Form.Field>
         <Form.Field>
           <label>Venue</label>
-          <input value={venue} onChange={e => setVenue(e.target.value)} placeholder="Enter the Venue of the event"/>
+          <input name='venue' value={venue} onChange={handleFormFieldChange}
+                 placeholder="Enter the Venue of the event"/>
         </Form.Field>
         <Form.Field>
           <label>Hosted By</label>
-          <input value={hostedBy} onChange={e => setHostedBy(e.target.value)} placeholder="Enter the name of person hosting"/>
+          <input name='hostedBy' value={hostedBy} onChange={handleFormFieldChange}
+                 placeholder="Enter the name of person hosting"/>
         </Form.Field>
         <Button positive type="submit" onClick={handleSubmit}>
           Submit
         </Button>
-        <Button type="button" onClick={close}>Cancel</Button>
+        <Button type="button" onClick={handleCancel}>Cancel</Button>
       </Form>
     </Segment>
   );
