@@ -8,7 +8,7 @@ import {BrowserRouter} from "react-router-dom";
 const rootElement = document.getElementById('root');
 
 let render = () => {
-  ReactDOM.render(<BrowserRouter><App /></BrowserRouter>, rootElement);
+  ReactDOM.render(<React.StrictMode><BrowserRouter><App /></BrowserRouter></React.StrictMode>, rootElement);
 }
 
 if(module.hot) {

@@ -12,20 +12,22 @@ import EventForm from "../../features/event/EventForm/EventForm";
 
 const App = () => {
   return (
-    <React.StrictMode>
-      <NavBar/>
-      <Container className='main'>
-        <Switch>
-          <Route path='/' exact component={HomePage}/>
-          <Route path='/events' component={EventDashboard}/>
-          <Route path='/events/:id' component={EventDetailedPage}/>
-          <Route path='/people' component={PeopleDashboard}/>
-          <Route path='/people/:id' component={UserDetailedPage}/>
-          <Route path='/settings' component={SettingsDashboard}/>
-          <Route path='/createEvent' component={EventForm}/>
-        </Switch>
-      </Container>
-    </React.StrictMode>
+    <>
+      <Route path='/' exact component={HomePage}/>
+      <Route path='/(.+)' render={() => (
+        <>
+          <NavBar/>
+          <Container className='main'>
+            <Route path='/events' component={EventDashboard}/>
+            <Route path='/events/:id' component={EventDetailedPage}/>
+            <Route path='/people' component={PeopleDashboard}/>
+            <Route path='/people/:id' component={UserDetailedPage}/>
+            <Route path='/settings' component={SettingsDashboard}/>
+            <Route path='/createEvent' component={EventForm}/>
+          </Container>
+        </>
+      )}/>
+    </>
   );
 }
 
