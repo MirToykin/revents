@@ -4,17 +4,26 @@ import './index.css';
 import App from './app/layout/App';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from "react-router-dom";
+import {configureStore} from "./app/store/configureStore";
+import {Provider} from "react-redux";
+
+const store = configureStore();
 
 const rootElement = document.getElementById('root');
 
 let render = () => {
-  ReactDOM.render(<React.StrictMode><BrowserRouter><App /></BrowserRouter></React.StrictMode>, rootElement);
+  ReactDOM.render(
+    <Provider store={store}>
+      <BrowserRouter>
+        <App/>
+      </BrowserRouter>
+    </Provider>, rootElement);
 }
 
-if(module.hot) {
-  module.hot.accept('./app/layout/App',() => {
+if (module.hot) {
+  module.hot.accept('./app/layout/App', () => {
     setTimeout(render);
-  } )
+  })
 }
 
 render();
