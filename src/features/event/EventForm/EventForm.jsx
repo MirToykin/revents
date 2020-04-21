@@ -1,30 +1,53 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Form, Segment} from "semantic-ui-react";
+import {connect} from "react-redux";
+import cuid from "cuid";
+import {createEvent, updateEvent} from "../eventActions";
 
-const EventForm = ({close, createEvent, updateEvent, selectedEvent, setSelectedEvent}) => {
-  const [formFields, setFormFields] = useState({
+const mapState = (state, ownProps) => {
+  const eventId = ownProps.match.params.id;
+  let event = {
     title: '',
     date: '',
     city: '',
     venue: '',
     hostedBy: ''
-  });
+  };
 
-  useEffect(() => {
-    if(selectedEvent) setFormFields(selectedEvent);
-  }, [selectedEvent]);
+  if (eventId && state.events.length) {
+    event = state.events.filter(event => eventId === event.id)[0];
+  }
 
+  return {event};
+}
+
+const actions = {
+  createEvent,
+  updateEvent
+}
+
+const EventForm = ({createEvent, updateEvent, event, history}) => {
+
+  const [formFields, setFormFields] = useState(event);
   const {title, date, city, venue, hostedBy} = formFields;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formFields.id) {
       updateEvent({...formFields});
-      setSelectedEvent(null);
+      history.goBack();
     } else {
-      createEvent({...formFields});
+      const newEvent = {
+        ...formFields,
+        id: cuid(),
+        hostPhotoURL: '/assets/user.png',
+        attendees: [],
+        description: ''
+      };
+
+      createEvent(newEvent);
+      history.push(`/events/`)
     }
-    close();
   };
 
   const handleFormFieldChange = (e) => {
@@ -33,11 +56,6 @@ const EventForm = ({close, createEvent, updateEvent, selectedEvent, setSelectedE
       ...prevFields,
       [name]: value
     }));
-  };
-
-  const handleCancel = () => {
-    close();
-    setSelectedEvent(null);
   };
 
   return (
@@ -70,10 +88,10 @@ const EventForm = ({close, createEvent, updateEvent, selectedEvent, setSelectedE
         <Button positive type="submit" onClick={handleSubmit}>
           Submit
         </Button>
-        <Button type="button" onClick={handleCancel}>Cancel</Button>
+        <Button type="button" onClick={history.goBack}>Cancel</Button>
       </Form>
     </Segment>
   );
 };
 
-export default EventForm;
+export default connect(mapState, actions)(EventForm);

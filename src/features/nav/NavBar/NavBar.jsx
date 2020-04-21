@@ -3,7 +3,7 @@ import {Button, Container, Menu} from "semantic-ui-react";
 import {Link, NavLink} from "react-router-dom";
 import SignedOutMenu from "../menus/SignedOutMenu";
 import SignedInMenu from "../menus/SignedInMenus";
-import {withRouter} from "react-router";
+import {withRouter} from "react-router-dom";
 
 const NavBar = ({history}) => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -23,7 +23,7 @@ const NavBar = ({history}) => {
         <Menu.Item as={NavLink} to='/events' exact name="Events" />
         <Menu.Item as={NavLink} to='/people' name="People" />
         <Menu.Item>
-          <Button as={Link} to='createEvent' floated="right" positive inverted content="Create Event" />
+          <Button as={Link} to='/createEvent' floated="right" positive inverted content="Create Event" />
         </Menu.Item>
         {authenticated ? <SignedInMenu logOut={handleLogOut}/> : <SignedOutMenu logIn={handleLogIn}/>}
       </Container>
