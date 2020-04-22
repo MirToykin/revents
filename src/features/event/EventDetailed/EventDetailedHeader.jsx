@@ -32,7 +32,7 @@ const EventDetailedHeader = ({event}) => {
                     content={event.title}
                     style={{ color: 'white' }}
                   />
-                  <p>{event.date}</p>
+                  <p>{typeof event.date === 'object' ? event.date.toLocaleString() : event.date}</p>
                   <p>
                     Hosted by <strong>{event.hostedBy}</strong>
                   </p>

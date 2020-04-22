@@ -3,7 +3,7 @@ import {Button, Icon, Item, List, Segment} from "semantic-ui-react";
 import EventListAttendee from "./EventListAttendee";
 import {Link} from "react-router-dom";
 
-const EventListItem = ({event, selectEvent, deleteEvent}) => {
+const EventListItem = ({event, deleteEvent}) => {
   return (
     <Segment.Group>
       <Segment>
@@ -21,7 +21,7 @@ const EventListItem = ({event, selectEvent, deleteEvent}) => {
       </Segment>
       <Segment>
           <span>
-            <Icon name="clock"/> {event.date} |
+            <Icon name="clock"/> {typeof event.date === 'object' ? event.date.toLocaleString() : event.date} |
             <Icon name="marker"/> {event.venue}
           </span>
       </Segment>

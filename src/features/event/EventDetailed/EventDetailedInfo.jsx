@@ -20,7 +20,7 @@ const EventDetailedInfo = ({event}) => {
             <Icon name="calendar" size="large" color="teal" />
           </Grid.Column>
           <Grid.Column width={15}>
-            <span>{event.date}</span>
+            <span>{typeof event.date === 'object' ? event.date.toLocaleString() : event.date}</span>
           </Grid.Column>
         </Grid>
       </Segment>
