@@ -10,10 +10,12 @@ import UserDetailedPage from "../../features/user/UserDetailed/UserDetailedPage"
 import SettingsDashboard from "../../features/user/settings/SettingsDasboard";
 import EventForm from "../../features/event/EventForm/EventForm";
 import {withRouter} from "react-router-dom";
+import ModalManager from "../../features/modals/ModalManager";
 
 const App = ({location: {key}}) => {
   return (
     <>
+      <ModalManager/>
       <Route path='/' exact component={HomePage}/>
       <Route path='/(.+)' render={() => (
         <>
