@@ -1,4 +1,5 @@
 import {CREATE_EVENT, DELETE_EVENT, UPDATE_EVENT} from "./eventConstants";
+import {asyncActionError, asyncActionFinish, asyncActionStart} from "../async/asyncActions";
 
 export const createEvent = (event) => {
   return {
@@ -24,5 +25,15 @@ export const deleteEvent = (eventId) => {
     payload: {
       eventId
     }
+  }
+}
+
+export const loadEvents = () => async dispatch => {
+  try {
+    dispatch(asyncActionStart());
+    //...
+    dispatch(asyncActionFinish());
+  } catch {
+    dispatch(asyncActionError());
   }
 }

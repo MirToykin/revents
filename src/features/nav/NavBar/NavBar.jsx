@@ -6,13 +6,20 @@ import SignedInMenu from "../menus/SignedInMenus";
 import {withRouter} from "react-router-dom";
 import {connect} from "react-redux";
 import {openModal} from "../../modals/modalActions";
+import {logout} from "../../auth/authActions";
 
 const actions = {
-  openModal
+  openModal,
+  logout
 }
 
-const NavBar = ({history, openModal}) => {
-  const [authenticated, setAuthenticated] = useState(false);
+const mapState = (state) => {
+  return {
+    auth: state.auth
+  }
+}
+
+const NavBar = ({history, openModal, auth: {authenticated, currentUser}}) => {
 
   const handleLogIn = () => {
     openModal('LoginModal')
@@ -23,23 +30,25 @@ const NavBar = ({history, openModal}) => {
   }
 
   const handleLogOut = () => {
-    setAuthenticated(false);
+    logout();
     history.push('/');
   }
   return (
     <Menu inverted fixed="top">
       <Container>
         <Menu.Item as={NavLink} to='/' exact header>
-          <img src="/assets/logo.png" alt="logo" />
+          <img src="/assets/logo.png" alt="logo"/>
           Re-vents
         </Menu.Item>
-        <Menu.Item as={NavLink} to='/events' exact name="Events" />
-        <Menu.Item as={NavLink} to='/people' name="People" />
-        <Menu.Item>
-          <Button as={Link} to='/createEvent' floated="right" positive inverted content="Create Event" />
-        </Menu.Item>
+        <Menu.Item as={NavLink} to='/events' exact name="Events"/>
+        {authenticated && <>
+          <Menu.Item as={NavLink} to='/people' name="People"/>
+          <Menu.Item>
+            <Button as={Link} to='/createEvent' floated="right" positive inverted content="Create Event"/>
+          </Menu.Item>
+        </>}
         {authenticated ?
-          <SignedInMenu logOut={handleLogOut}/> :
+          <SignedInMenu logOut={handleLogOut} currentUser={currentUser}/> :
           <SignedOutMenu logIn={handleLogIn} register={handleRegister}/>}
       </Container>
     </Menu>
@@ -48,4 +57,4 @@ const NavBar = ({history, openModal}) => {
   );
 };
 
-export default connect(null, actions)(withRouter(NavBar));
+export default connect(mapState, actions)(withRouter(NavBar));
