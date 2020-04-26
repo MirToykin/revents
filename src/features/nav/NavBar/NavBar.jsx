@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Button, Container, Menu} from "semantic-ui-react";
 import {Link, NavLink} from "react-router-dom";
 import SignedOutMenu from "../menus/SignedOutMenu";

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Button, Form, Grid, GridColumn, Header, Segment} from "semantic-ui-react";
 import {connect} from "react-redux";
 import cuid from "cuid";

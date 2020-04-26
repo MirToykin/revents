@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
-import {Button, Grid} from "semantic-ui-react";
+import React from 'react';
+import {Grid} from "semantic-ui-react";
 import EventList from "../EventList/EventList";
 import {createEvent, deleteEvent, updateEvent} from "../eventActions";
 import {connect} from "react-redux";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
+import EventActivity from "../EventActivity/EventActivity";
 
 const mapStateToProps = (state) => {
   return {
@@ -26,7 +27,7 @@ const EventDashboard = ({events, deleteEvent, loading}) => {
         <EventList deleteEvent={deleteEvent} events={events}/>
       </Grid.Column>
       <Grid.Column width={6}>
-        <h2>Activities</h2>
+        <EventActivity/>
       </Grid.Column>
     </Grid>
   );
