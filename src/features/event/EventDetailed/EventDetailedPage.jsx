@@ -5,19 +5,23 @@ import EventDetailedInfo from "./EventDetailedInfo";
 import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedSideBar from "./EventDetailedSideBar";
 import {connect} from "react-redux";
+import {firestoreConnect} from "react-redux-firebase";
 
 const mapState = (state, ownPops) => {
   const eventId = ownPops.match.params.id;
   let event = {};
 
-  if (eventId && state.events.length) {
-    event = state.events.filter(event => eventId === event.id)[0];
+  const events = state.firestore.ordered.events;
+
+  if (eventId && events && events.length) {
+    event = events.filter(event => eventId === event.id)[0];
   }
 
   return {event};
 };
 
 const EventDetailedPage = ({event}) => {
+  if (!Object.values(event).length) return <p>Loading...</p>
   return (
     <Grid>
       <GridColumn width={10}>
@@ -32,4 +36,4 @@ const EventDetailedPage = ({event}) => {
   );
 };
 
-export default connect(mapState)(EventDetailedPage);
+export default connect(mapState)(firestoreConnect([{collection: 'events'}])(EventDetailedPage));

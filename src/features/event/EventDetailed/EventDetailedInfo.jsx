@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Grid, Icon, Segment} from "semantic-ui-react";
-import {format, parseISO} from 'date-fns';
+import {format} from 'date-fns';
 
 const EventDetailedInfo = ({event}) => {
   return (
@@ -22,7 +22,7 @@ const EventDetailedInfo = ({event}) => {
           </Grid.Column>
           <Grid.Column width={15}>
             {/*<span>{typeof event.date === 'object' ? event.date.toLocaleString() : event.date}</span>*/}
-            <span>{format(parseISO(event.date), 'EEEE do LLL')} at {format(parseISO(event.date), 'h:mm a')}</span>
+            <span>{format(event.date.toDate(), 'EEEE do LLL')} at {format(event.date.toDate(), 'h:mm a')}</span>
           </Grid.Column>
         </Grid>
       </Segment>
