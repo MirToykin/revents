@@ -18,7 +18,7 @@ const DateInput = ({
         onBlur={input.onBlur}
         onChangeRaw={(e) => e.preventDefault()}
       />
-      {touched && error && <Label style={{marginTop: '1em'}} basic color='red'>{error}</Label>}
+      {touched && error && <Label style={{marginTop: '1em', width: '100%', textAlign: 'center'}} basic color='red'>{error}</Label>}
     </Form.Field>
   );
 };

@@ -14,11 +14,12 @@ const actions = {
 
 const mapState = (state) => {
   return {
-    auth: state.firebase.auth
+    auth: state.firebase.auth,
+    profile: state.firebase.profile
   }
 }
 
-const NavBar = ({history, openModal, auth, firebase}) => {
+const NavBar = ({history, openModal, auth, firebase, profile}) => {
 
   const authenticated = auth.isLoaded && !auth.isEmpty;
 
@@ -49,7 +50,7 @@ const NavBar = ({history, openModal, auth, firebase}) => {
           </Menu.Item>
         </>}
         {authenticated ?
-          <SignedInMenu logOut={handleLogOut} auth={auth}/> :
+          <SignedInMenu logOut={handleLogOut} profile={profile}/> :
           <SignedOutMenu logIn={handleLogIn} register={handleRegister}/>}
       </Container>
     </Menu>

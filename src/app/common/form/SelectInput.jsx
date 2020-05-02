@@ -11,7 +11,7 @@ const SelectInput = ({input, type, placeholder, multiple, options, meta: {touche
         options={options}
         multiple={multiple}
       />
-      {touched && error && <Label style={{marginTop: '1em'}} basic color='red'>{error}</Label>}
+      {touched && error && <Label style={{marginTop: '1em', width: '100%', textAlign: 'center'}} basic color='red'>{error}</Label>}
     </Form.Field>
   );
 };

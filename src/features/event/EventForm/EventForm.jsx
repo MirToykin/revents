@@ -53,7 +53,6 @@ const EventForm = ({createEvent, updateEvent,
                     history, handleSubmit,
                     initialValues}) => {
   const onFormSubmit = (values) => {
-    console.log(values)
     if (initialValues.id) {
       updateEvent(values);
       history.push(`/events/${initialValues.id}`);
