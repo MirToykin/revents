@@ -13,7 +13,7 @@ const DateInput = ({
       <DatePicker
         {...rest}
         placeholderText={placeholder}
-        selected={input.value ? new Date(input.value) : null}
+        selected={input.value.seconds ? input.value.toDate() : typeof input.value === 'object' ? new Date(input.value) : null}
         onChange={input.onChange}
         onBlur={input.onBlur}
         onChangeRaw={(e) => e.preventDefault()}

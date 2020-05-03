@@ -14,8 +14,8 @@ const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
   let event = {};
 
-  if (eventId && state.events.length) {
-    event = state.events.filter(event => eventId === event.id)[0];
+  if (eventId && state.firestore.ordered.events.length) {
+    event = state.firestore.ordered.events.filter(event => eventId === event.id)[0];
   }
 
   return {
@@ -112,4 +112,4 @@ const EventForm = ({createEvent, updateEvent,
   );
 };
 
-export default connect(mapState, actions)(reduxForm({form: 'eventForm', validate})(EventForm));
+export default connect(mapState, actions)(reduxForm({form: 'eventForm', validate/*, enableReinitialize: true*/})(EventForm));
