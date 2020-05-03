@@ -3,7 +3,6 @@ import { Segment, Header, Form, Divider, Label, Button, Icon } from 'semantic-ui
 import { Field, reduxForm } from 'redux-form';
 import TextInput from '../../../app/common/form/TextInput';
 import {combineValidators, isRequired, composeValidators, matchesField} from "revalidate";
-import {updatePassword} from "../../auth/authActions";
 
 const validate = combineValidators({
   newPassword1: isRequired({message: 'Please enter a password'}),
@@ -13,11 +12,11 @@ const validate = combineValidators({
   )()
 })
 
-const AccountPage = ({ error, invalid, submitting, handleSubmit, updatePassword }) => {
+const AccountPage = ({ error, invalid, submitting, handleSubmit, updatePassword, providerId }) => {
   return (
     <Segment>
       <Header dividing size="large" content="Account" />
-      <div>
+      {providerId && providerId === 'password' && <div>
         <Header color="teal" sub content="Change password" />
         <p>Use this form to update your account settings</p>
         <Form onSubmit={handleSubmit(updatePassword)}>
@@ -49,25 +48,25 @@ const AccountPage = ({ error, invalid, submitting, handleSubmit, updatePassword 
           <Divider />
           <Button disabled={submitting || invalid} size="large" positive content="Update Password" />
         </Form>
-      </div>
+      </div>}
 
-      <div>
+      {providerId && providerId === 'facebook.com' && <div>
         <Header color="teal" sub content="Facebook Account" />
         <p>Please visit Facebook to update your account settings</p>
         <Button type="button" color="facebook">
           <Icon name="facebook" />
           Go to Facebook
         </Button>
-      </div>
+      </div>}
 
-      <div>
+      {providerId && providerId === 'google.com' && <div>
         <Header color="teal" sub content="Google Account" />
         <p>Please visit Google to update your account settings</p>
         <Button type="button" color="google plus">
           <Icon name="google plus" />
           Go to Google
         </Button>
-      </div>
+      </div>}
     </Segment>
   );
 };
