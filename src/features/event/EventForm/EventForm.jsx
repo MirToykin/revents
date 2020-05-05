@@ -5,7 +5,7 @@ import cuid from "cuid";
 import {createEvent, updateEvent} from "../eventActions";
 import {Field, reduxForm} from "redux-form";
 import TextInput from "../../../app/common/form/TextInput";
-import Textarea from "../../../app/common/form/Textarea";
+import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
 import {combineValidators, composeValidators, isRequired, hasLengthGreaterThan} from 'revalidate'
 import DateInput from "../../../app/common/form/DateInput";
@@ -83,7 +83,7 @@ const EventForm = ({createEvent, updateEvent,
                    options={category}
             />
             <Field name='description'
-                   rows={3} component={Textarea}
+                   rows={3} component={TextArea}
                    placeholder='Tell us about your event'
             />
             <Header sub color='teal' content='Event Location Details' style={{marginTop: '0'}}/>
