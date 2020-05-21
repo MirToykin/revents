@@ -1,6 +1,6 @@
 import {eventReducer} from "../../features/event/eventReducer";
 import {combineReducers} from "redux";
-import {reducer as fromReducer} from "redux-form";
+import {reducer as formReducer} from "redux-form";
 import {reducer as ToasterReducer} from 'react-redux-toastr'
 import {modalReducer} from "../../features/modals/modalReducer";
 import authReducer from "../../features/auth/authReducer";
@@ -11,7 +11,7 @@ import {firestoreReducer} from "redux-firestore";
 export const rootReducer = combineReducers({
   firebase: firebaseReducer,
   firestore: firestoreReducer,
-  form: fromReducer,
+  form: formReducer,
   events: eventReducer,
   modals: modalReducer,
   auth: authReducer,

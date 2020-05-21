@@ -115,7 +115,7 @@ body {
   /* min-height: 236px; */
 }
 
-.dropzone--isActive {
+.dropzone--active {
   border: dashed 3px green;
 }
 
