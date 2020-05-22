@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {Image, Segment, Header, Divider, Grid, Button, Card} from 'semantic-ui-react';
 import DropzoneInput from "./DropzoneInput";
+import CropperInput from "./CropperInput";
 
 const PhotosPage = () => {
   const [files, setFiles] = useState([]);
+  const [image, setImage] = useState(null);
+
   useEffect(() => {
     return () => {
       files.forEach(file => URL.revokeObjectURL(file.preview))
@@ -22,16 +25,21 @@ const PhotosPage = () => {
         <Grid.Column width={1}/>
         <Grid.Column width={4}>
           <Header sub color='teal' content='Step 2 - Resize image'/>
+          {files.length > 0 && <CropperInput previewImage={files[0].preview} setImage={setImage}/>}
         </Grid.Column>
         <Grid.Column width={1}/>
         <Grid.Column width={4}>
           <Header sub color='teal' content='Step 3 - Preview and Upload'/>
           {
-            files.length > 0 && <img src={files[0].preview} style={{
-              minHeight: '200px',
-              minWidth: '200px',
-              maxWidth: '200px'
-            }} alt='image'/>
+            files.length > 0 && <div
+              style={{
+                minHeight: '200px',
+                minWidth: '200px',
+                maxWidth: '200px',
+                overflow: 'hidden'
+              }}
+              className='img-preview'
+            />
           }
         </Grid.Column>
 
