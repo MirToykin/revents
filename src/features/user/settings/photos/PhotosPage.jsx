@@ -5,9 +5,27 @@ import CropperInput from "./CropperInput";
 import {connect} from "react-redux";
 import {uploadProfileImage} from "../../userActions";
 import {toastr} from 'react-redux-toastr';
+import {compose} from 'redux';
+import {firestoreConnect} from "react-redux-firebase";
+
+const mapState = (state) => ({
+  auth: state.firebase.auth,
+  profile: state.firebase.profile
+})
 
 const actions = {
   uploadProfileImage
+}
+
+const query = ({auth}) => {
+  return [
+    {
+      collection: 'users',
+      doc: auth.uid,
+      subcollections: [{collection: 'images'}],
+      storeAs: 'images'
+    }
+  ]
 }
 
 const PhotosPage = ({uploadProfileImage}) => {
@@ -97,4 +115,7 @@ const PhotosPage = ({uploadProfileImage}) => {
   );
 }
 
-export default connect(null, actions)(PhotosPage);
+export default compose(
+  connect(mapState, actions),
+  firestoreConnect(auth => query(auth))
+)(PhotosPage);
