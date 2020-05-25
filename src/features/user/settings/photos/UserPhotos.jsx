@@ -17,7 +17,7 @@ const UserPhotos = ({profile, images}) => {
           <Button positive>Main Photo</Button>
         </Card>
 
-        {filteredImages.map(image => {
+        {filteredImages && filteredImages.map(image => {
           return (
             <Card>
               <Image
