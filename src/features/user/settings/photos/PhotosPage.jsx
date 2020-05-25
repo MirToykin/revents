@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Segment, Header, Divider, Grid, Button, Card} from 'semantic-ui-react';
+import {Segment, Header, Divider, Grid, Button} from 'semantic-ui-react';
 import DropzoneInput from "./DropzoneInput";
 import CropperInput from "./CropperInput";
 import {connect} from "react-redux";
@@ -7,10 +7,12 @@ import {uploadProfileImage} from "../../userActions";
 import {toastr} from 'react-redux-toastr';
 import {compose} from 'redux';
 import {firestoreConnect} from "react-redux-firebase";
+import UserPhotos from "./UserPhotos";
 
 const mapState = (state) => ({
   auth: state.firebase.auth,
-  profile: state.firebase.profile
+  profile: state.firebase.profile,
+  images: state.firestore.ordered.images
 })
 
 const actions = {
@@ -28,7 +30,7 @@ const query = ({auth}) => {
   ]
 }
 
-const PhotosPage = ({uploadProfileImage}) => {
+const PhotosPage = ({uploadProfileImage, profile, images}) => {
   const [files, setFiles] = useState([]);
   const [image, setImage] = useState(null);
 
@@ -41,6 +43,7 @@ const PhotosPage = ({uploadProfileImage}) => {
   const handleUploadImage = async () => {
     try {
       await uploadProfileImage(image, files[0].name);
+      handleCancelCrop();
       toastr.success('Success', 'Image has been uploaded');
     } catch(error) {
       console.log(error);
@@ -93,24 +96,7 @@ const PhotosPage = ({uploadProfileImage}) => {
       </Grid>
 
       <Divider/>
-      <Header sub color='teal' content='All Photos'/>
-
-      <Card.Group itemsPerRow={5}>
-        <Card>
-          <Image src='https://randomuser.me/api/portraits/men/20.jpg'/>
-          <Button positive>Main Photo</Button>
-        </Card>
-
-        <Card>
-          <Image
-            src='https://randomuser.me/api/portraits/men/20.jpg'
-          />
-          <div className='ui two buttons'>
-            <Button basic color='green'>Main</Button>
-            <Button basic icon='trash' color='red'/>
-          </div>
-        </Card>
-      </Card.Group>
+      <UserPhotos profile={profile} images={images}/>
     </Segment>
   );
 }
