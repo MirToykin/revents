@@ -15,44 +15,63 @@ export const updateProfile = user => async (dispatch, getState, {getFirebase}) =
 export const uploadProfileImage = (file, fileName) =>
   async (dispatch, getState, {getFirebase, getFirestore}) => {
 
-  const imageName = cuid();
-  const firebase = getFirebase();
-  const firestore = getFirestore();
-  const user = firebase.auth().currentUser;
-  const path = `users/${user.uid}`;
-  const options = {
-    name: imageName
+    const imageName = cuid();
+    const firebase = getFirebase();
+    const firestore = getFirestore();
+    const user = firebase.auth().currentUser;
+    const path = `users/${user.uid}/user_images`;
+    const options = {
+      name: imageName
+    }
+
+    try {
+      dispatch(asyncActionStart());
+      // upload the file to firebase storage
+      let uploadedFile = await firebase.uploadFile(path, file, null, options);
+      // get uploadd image url
+      let downloadURL = await uploadedFile.uploadTaskSnapshot.ref.getDownloadURL();
+      // get userdoc
+      let userDoc = await firestore.get(`users/${user.uid}`);
+      // check if user has photo, if not update profile
+      if (!userDoc.data().photoURL) {
+        firebase.updateProfile({
+          photoURL: downloadURL
+        });
+        user.updateProfile({
+          photoURL: downloadURL
+        })
+      }
+      // add the image to firestore
+      firestore.add({
+        collection: 'users',
+        doc: user.uid,
+        subcollections: [{collection: 'images'}]
+      }, {
+        name: imageName,
+        url: downloadURL
+      });
+      dispatch(asyncActionFinish());
+    } catch (error) {
+      console.log(error);
+      dispatch(asyncActionError());
+    }
   }
 
-  try {
-    dispatch(asyncActionStart());
-    // upload the file to firebase storage
-    let uploadedFile = await firebase.uploadFile(path, file, null, options);
-    // get uploadd image url
-    let downloadURL = await uploadedFile.uploadTaskSnapshot.ref.getDownloadURL();
-    // get userdoc
-    let userDoc = await firestore.get(`users/${user.uid}`);
-    // check if user has photo, if not update profile
-    if (!userDoc.data().photoURL) {
-      firebase.updateProfile({
-        photoURL: downloadURL
-      });
-      user.updateProfile({
-        photoURL: downloadURL
-      })
+  export const deleteImage = (photo) =>
+    async (dispatch, getState, {getFirebase, getFirestore}) => {
+      const firebase = getFirebase();
+      const firestore = getFirestore();
+      const user = firebase.auth().currentUser;
+
+      try {
+        await firebase.deleteFile(`users/${user.uid}/user_images/${photo.name}`);
+        await firestore.delete({
+          collection: 'users',
+          doc: user.uid,
+          subcollections: [{collection: 'images', doc: photo.id}]
+        })
+      } catch (error) {
+        console.log(error);
+        throw new Error('Some problem with photo deleting')
+      }
     }
-    // add the image to firestore
-    firestore.add({
-      collection: 'users',
-      doc: user.uid,
-      subcollections: [{collection: 'images'}]
-    }, {
-      name: fileName,
-      url: downloadURL
-    });
-    dispatch(asyncActionFinish());
-  } catch(error) {
-    console.log(error);
-    dispatch(asyncActionError());
-  }
-  }
