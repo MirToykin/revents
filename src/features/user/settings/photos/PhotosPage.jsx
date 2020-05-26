@@ -3,7 +3,7 @@ import {Segment, Header, Divider, Grid, Button} from 'semantic-ui-react';
 import DropzoneInput from "./DropzoneInput";
 import CropperInput from "./CropperInput";
 import {connect} from "react-redux";
-import {deleteImage, uploadProfileImage} from "../../userActions";
+import {deleteImage, setMainImage, uploadProfileImage} from "../../userActions";
 import {toastr} from 'react-redux-toastr';
 import {compose} from 'redux';
 import {firestoreConnect} from "react-redux-firebase";
@@ -17,7 +17,8 @@ const mapState = (state) => ({
 
 const actions = {
   uploadProfileImage,
-  deleteImage
+  deleteImage,
+  setMainImage
 }
 
 const query = ({auth}) => {
@@ -31,7 +32,7 @@ const query = ({auth}) => {
   ]
 }
 
-const PhotosPage = ({uploadProfileImage, profile, images, deleteImage}) => {
+const PhotosPage = ({uploadProfileImage, profile, images, deleteImage, setMainImage}) => {
   const [files, setFiles] = useState([]);
   const [image, setImage] = useState(null);
 
@@ -43,7 +44,7 @@ const PhotosPage = ({uploadProfileImage, profile, images, deleteImage}) => {
 
   const handleUploadImage = async () => {
     try {
-      await uploadProfileImage(image, files[0].name);
+      await uploadProfileImage(image);
       handleCancelCrop();
       toastr.success('Success', 'Image has been uploaded');
     } catch(error) {
@@ -52,11 +53,19 @@ const PhotosPage = ({uploadProfileImage, profile, images, deleteImage}) => {
     }
   }
 
-  const handleDeleteImage = async (photo) => {
+  const handleDeleteImage = async (image) => {
     try {
-      await deleteImage(photo);
+      await deleteImage(image);
     } catch (error) {
       toastr.error('Oops', error.message)
+    }
+  }
+
+  const handleSetMainImage = async (image) => {
+    try {
+      await setMainImage(image);
+    } catch (error) {
+      toastr.error('Oops', error.message);
     }
   }
 
@@ -105,7 +114,12 @@ const PhotosPage = ({uploadProfileImage, profile, images, deleteImage}) => {
       </Grid>
 
       <Divider/>
-      <UserPhotos profile={profile} images={images} deleteImage={handleDeleteImage}/>
+      <UserPhotos
+        profile={profile}
+        images={images}
+        deleteImage={handleDeleteImage}
+        setMainImage={handleSetMainImage}
+      />
     </Segment>
   );
 }
