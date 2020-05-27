@@ -12,7 +12,8 @@ import UserPhotos from "./UserPhotos";
 const mapState = (state) => ({
   auth: state.firebase.auth,
   profile: state.firebase.profile,
-  images: state.firestore.ordered.images
+  images: state.firestore.ordered.images,
+  loading: state.async.loading
 })
 
 const actions = {
@@ -32,7 +33,7 @@ const query = ({auth}) => {
   ]
 }
 
-const PhotosPage = ({uploadProfileImage, profile, images, deleteImage, setMainImage}) => {
+const PhotosPage = ({uploadProfileImage, profile, images, deleteImage, setMainImage, loading}) => {
   const [files, setFiles] = useState([]);
   const [image, setImage] = useState(null);
 
@@ -104,8 +105,8 @@ const PhotosPage = ({uploadProfileImage, profile, images, deleteImage, setMainIm
                   className='img-preview'
                 />
                 <Button.Group>
-                  <Button onClick={handleUploadImage} style={{width: '100px'}} positive icon='check'/>
-                  <Button onClick={handleCancelCrop} style={{width: '100px'}} icon='close'/>
+                  <Button loading={loading} onClick={handleUploadImage} style={{width: '100px'}} positive icon='check'/>
+                  <Button disabled={loading} onClick={handleCancelCrop} style={{width: '100px'}} icon='close'/>
                 </Button.Group>
               </>
           }
