@@ -17,7 +17,7 @@ const mapState = (state, ownPops) => {
     event = events.filter(event => eventId === event.id)[0];
   }
 
-  return {event};
+  return {event}
 };
 
 const EventDetailedPage = ({event}) => {

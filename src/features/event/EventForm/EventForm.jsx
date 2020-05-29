@@ -1,7 +1,6 @@
 import React from 'react';
 import {Button, Form, Grid, GridColumn, Header, Segment} from "semantic-ui-react";
 import {connect} from "react-redux";
-import cuid from "cuid";
 import {createEvent, updateEvent} from "../eventActions";
 import {Field, reduxForm} from "redux-form";
 import TextInput from "../../../app/common/form/TextInput";
@@ -52,21 +51,13 @@ const validate = combineValidators({
 const EventForm = ({createEvent, updateEvent,
                     history, handleSubmit,
                     initialValues}) => {
-  const onFormSubmit = (values) => {
+  const onFormSubmit = async (values) => {
     if (initialValues.id) {
       updateEvent(values);
       history.push(`/events/${initialValues.id}`);
     } else {
-      const newEvent = {
-        ...values,
-        id: cuid(),
-        hostPhotoURL: '/assets/user.png',
-        attendees: [],
-        hostedBy: 'Mir'
-      };
-
-      createEvent(newEvent);
-      history.push(`/events`)
+      const createdEvent = await createEvent(values);
+      history.push(`/events/${createdEvent.id}`)
     }
   };
 
