@@ -3,12 +3,28 @@ import {Button, Card, Grid, Header, Icon, Image, Item, List, Menu, Segment, Load
 import {connect} from "react-redux";
 import {differenceInYears, format} from 'date-fns';
 import { isLoaded } from 'react-redux-firebase'
+import {firestoreConnect} from "react-redux-firebase";
+import {compose} from "redux";
+import {Link} from "react-router-dom";
 
 const mapState = (state) => ({
-  profile: state.firebase.profile
+  auth: state.firebase.auth,
+  profile: state.firebase.profile,
+  images: state.firestore.ordered.images,
 })
 
-const UserDetailedPage = ({profile}) => {
+const query = ({auth}) => {
+  return [
+    {
+      collection: 'users',
+      doc: auth.uid,
+      subcollections: [{collection: 'images'}],
+      storeAs: 'images'
+    }
+  ]
+}
+
+const UserDetailedPage = ({profile, images}) => {
   if (!isLoaded(profile)) return <Loader disabled/>
 
   return (
@@ -38,25 +54,19 @@ const UserDetailedPage = ({profile}) => {
               <p>I am a: <strong>{profile.occupation}</strong></p>
               <p>Originally from <strong>Milky Way</strong></p>
               <p>Member Since: <strong>{format(profile.createdAt.toDate(), 'LLLL do, yyyy')}</strong></p>
-              <p>Description of user</p>
+              <p>{profile.about}</p>
 
             </Grid.Column>
             <Grid.Column width={6}>
 
               <Header icon='heart outline' content='Interests'/>
               <List>
-                <Item>
-                  <Icon name='heart'/>
-                  <Item.Content>Interest 1</Item.Content>
-                </Item>
-                <Item>
-                  <Icon name='heart'/>
-                  <Item.Content>Interest 2</Item.Content>
-                </Item>
-                <Item>
-                  <Icon name='heart'/>
-                  <Item.Content>Interest 3</Item.Content>
-                </Item>
+                {profile.interests && profile.interests.map(int => (
+                  <Item key={int}>
+                    <Icon name='heart'/>
+                    <Item.Content>{int}</Item.Content>
+                  </Item>
+                ))}
               </List>
             </Grid.Column>
           </Grid>
@@ -65,22 +75,19 @@ const UserDetailedPage = ({profile}) => {
       </Grid.Column>
       <Grid.Column width={4}>
         <Segment>
-          <Button color='teal' fluid basic content='Edit Profile'/>
+          <Button as={Link} to={'/settings/basic'} color='teal' fluid basic content='Edit Profile'/>
         </Segment>
       </Grid.Column>
 
-      <Grid.Column width={12}>
+      {images && <Grid.Column width={12}>
         <Segment attached>
           <Header icon='image' content='Photos'/>
 
           <Image.Group size='small'>
-            <Image src='https://randomuser.me/api/portraits/men/20.jpg'/>
-            <Image src='https://randomuser.me/api/portraits/men/20.jpg'/>
-            <Image src='https://randomuser.me/api/portraits/men/20.jpg'/>
-            <Image src='https://randomuser.me/api/portraits/men/20.jpg'/>
+            {images.map(img => (<Image key={img.name} src={img.url} alt={img.name}/>))}
           </Image.Group>
         </Segment>
-      </Grid.Column>
+      </Grid.Column>}
 
       <Grid.Column width={12}>
         <Segment attached>
@@ -126,4 +133,7 @@ const UserDetailedPage = ({profile}) => {
   );
 }
 
-export default connect(mapState)(UserDetailedPage);
+export default compose(
+  connect(mapState),
+  firestoreConnect(auth => query(auth))
+)(UserDetailedPage);
