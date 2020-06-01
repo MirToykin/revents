@@ -1,11 +1,12 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Grid, GridColumn} from "semantic-ui-react";
 import EventDetailedHeader from "./EventDetailedHeader";
 import EventDetailedInfo from "./EventDetailedInfo";
 import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedSideBar from "./EventDetailedSideBar";
 import {connect} from "react-redux";
-import {firestoreConnect} from "react-redux-firebase";
+import {withFirestore} from "react-redux-firebase";
+import {toastr} from "react-redux-toastr";
 
 const mapState = (state, ownPops) => {
   const eventId = ownPops.match.params.id;
@@ -13,15 +14,28 @@ const mapState = (state, ownPops) => {
 
   const events = state.firestore.ordered.events;
 
-  if (eventId && events && events.length) {
+  if (events && events.length) {
     event = events.filter(event => eventId === event.id)[0];
   }
 
   return {event}
 };
 
-const EventDetailedPage = ({event}) => {
+const EventDetailedPage = ({firestore, match, history, event}) => {
+  const eventId = match.params.id;
+
+  useEffect(() => {
+    (async () => {
+      const event = await firestore.get(`events/${eventId}`);
+      if (!event.exists) {
+        history.push('/events');
+        toastr.error('Oops', 'Event not exist')
+      }
+    })();
+  }, [eventId]);
+
   if (!Object.values(event).length) return <p>Loading...</p>
+
   return (
     <Grid>
       <GridColumn width={10}>
@@ -36,4 +50,4 @@ const EventDetailedPage = ({event}) => {
   );
 };
 
-export default connect(mapState)(firestoreConnect([{collection: 'events'}])(EventDetailedPage));
+export default withFirestore(connect(mapState)(EventDetailedPage));
