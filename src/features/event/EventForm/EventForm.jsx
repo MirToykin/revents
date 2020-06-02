@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {Button, Form, Grid, GridColumn, Header, Segment} from "semantic-ui-react";
 import {connect} from "react-redux";
-import {createEvent, updateEvent} from "../eventActions";
+import {cancelToggle, createEvent, updateEvent} from "../eventActions";
 import {Field, reduxForm} from "redux-form";
 import TextInput from "../../../app/common/form/TextInput";
 import TextArea from "../../../app/common/form/TextArea";
@@ -23,13 +23,15 @@ const mapState = (state, ownProps) => {
   }
 
   return {
-    initialValues: event
+    initialValues: event,
+    event
   };
 }
 
 const actions = {
   createEvent,
-  updateEvent
+  updateEvent,
+  cancelToggle
 }
 
 const category = [
@@ -53,18 +55,14 @@ const validate = combineValidators({
   date: isRequired('date')
 })
 
-const EventForm = ({createEvent, updateEvent,
-                    history, handleSubmit, match,
+const EventForm = ({createEvent, updateEvent, cancelToggle,
+                    history, handleSubmit, match, event,
                     initialValues, firestore}) => {
   const eventId = match.params.id;
 
   useEffect(() => {
     (async () => {
-      const event = await firestore.get(`events/${eventId}`);
-      if (!event.exists) {
-        history.push('/events');
-        toastr.error('Oops', 'Event not exist')
-      }
+      await firestore.setListener(`events/${eventId}`);
     })();
   }, [eventId, firestore, history]); // firestore и history включил т.к. было предупреждение в терминале
 
@@ -113,6 +111,13 @@ const EventForm = ({createEvent, updateEvent,
                       () => history.push(`/events`)
                     }
             >Cancel</Button>
+            <Button
+              type='button'
+              color={event.cancelled ? 'green' : 'red'}
+              content={event.cancelled ? 'Reactivate event' : 'Cancel event'}
+              floated='right'
+              onClick={() => cancelToggle(!event.cancelled, event.id)}
+            />
           </Form>
         </Segment>
       </GridColumn>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Grid} from "semantic-ui-react";
 import EventList from "../EventList/EventList";
-import {createEvent, deleteEvent, updateEvent} from "../eventActions";
+import {createEvent, updateEvent} from "../eventActions";
 import {connect} from "react-redux";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import EventActivity from "../EventActivity/EventActivity";
@@ -15,17 +15,16 @@ const mapStateToProps = (state) => {
 }
 const actions = {
   createEvent,
-  updateEvent,
-  deleteEvent
+  updateEvent
 }
 
-const EventDashboard = ({events, deleteEvent, loading}) => {
+const EventDashboard = ({events, loading}) => {
   if(loading) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList deleteEvent={deleteEvent} events={events}/>
+        <EventList events={events}/>
       </Grid.Column>
       <Grid.Column width={6}>
         <EventActivity/>

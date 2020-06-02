@@ -1,4 +1,3 @@
-import {DELETE_EVENT} from "./eventConstants";
 import {asyncActionError, asyncActionFinish, asyncActionStart} from "../async/asyncActions";
 import {toastr} from "react-redux-toastr";
 import {createNewEvent} from "../../app/common/util/helpers";
@@ -35,12 +34,20 @@ export const updateEvent = (event) => (dispatch, getState, {getFirestore}) => {
   }
 }
 
-export const deleteEvent = (eventId) => {
-  return {
-    type: DELETE_EVENT,
-    payload: {
-      eventId
-    }
+export const cancelToggle = (cancelled, eventId) => (dispatch, getState, {getFirestore}) => {
+  const firestore = getFirestore();
+  const message = cancelled ? 'Do you want to cancel the event?' : 'This reactivate the event';
+
+  try {
+    toastr.confirm(message, {
+      onOk: async () => {
+        await firestore.update(`events/${eventId}`, {
+          cancelled
+        })
+      }
+    })
+  } catch(error) {
+    console.log(error);
   }
 }
 
