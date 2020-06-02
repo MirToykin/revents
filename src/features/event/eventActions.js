@@ -1,4 +1,4 @@
-import {DELETE_EVENT, UPDATE_EVENT} from "./eventConstants";
+import {DELETE_EVENT} from "./eventConstants";
 import {asyncActionError, asyncActionFinish, asyncActionStart} from "../async/asyncActions";
 import {toastr} from "react-redux-toastr";
 import {createNewEvent} from "../../app/common/util/helpers";
@@ -24,14 +24,11 @@ export const createEvent = (event) => async (dispatch, getState, {getFirebase, g
   }
 }
 
-export const updateEvent = (event) => dispatch => {
+export const updateEvent = (event) => (dispatch, getState, {getFirestore}) => {
+  const firestore = getFirestore();
+
   try {
-    dispatch({
-      type: UPDATE_EVENT,
-      payload: {
-        event
-      }
-    });
+    firestore.update(`events/${event.id}`, event);
     toastr.success('Success!', 'Event has been updated.');
   } catch (err) {
     toastr.error('Oops', 'Something went wrong!');

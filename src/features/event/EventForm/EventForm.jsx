@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Button, Form, Grid, GridColumn, Header, Segment} from "semantic-ui-react";
 import {connect} from "react-redux";
 import {createEvent, updateEvent} from "../eventActions";
@@ -8,13 +8,18 @@ import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
 import {combineValidators, composeValidators, isRequired, hasLengthGreaterThan} from 'revalidate'
 import DateInput from "../../../app/common/form/DateInput";
+import {toastr} from "react-redux-toastr";
+import {compose} from "redux";
+import {withFirestore} from "react-redux-firebase";
 
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
   let event = {};
 
-  if (eventId && state.firestore.ordered.events.length) {
-    event = state.firestore.ordered.events.filter(event => eventId === event.id)[0];
+  const events = state.firestore.ordered.events;
+
+  if (events && events.length) {
+    event = events.filter(event => eventId === event.id)[0] || {};
   }
 
   return {
@@ -49,8 +54,20 @@ const validate = combineValidators({
 })
 
 const EventForm = ({createEvent, updateEvent,
-                    history, handleSubmit,
-                    initialValues}) => {
+                    history, handleSubmit, match,
+                    initialValues, firestore}) => {
+  const eventId = match.params.id;
+
+  useEffect(() => {
+    (async () => {
+      const event = await firestore.get(`events/${eventId}`);
+      if (!event.exists) {
+        history.push('/events');
+        toastr.error('Oops', 'Event not exist')
+      }
+    })();
+  }, [eventId, firestore, history]); // firestore и history включил т.к. было предупреждение в терминале
+
   const onFormSubmit = async (values) => {
     if (initialValues.id) {
       updateEvent(values);
@@ -103,4 +120,8 @@ const EventForm = ({createEvent, updateEvent,
   );
 };
 
-export default connect(mapState, actions)(reduxForm({form: 'eventForm', validate/*, enableReinitialize: true*/})(EventForm));
+export default compose(
+  withFirestore,
+  connect(mapState, actions),
+  (reduxForm({form: 'eventForm', validate, enableReinitialize: true}))
+)(EventForm);

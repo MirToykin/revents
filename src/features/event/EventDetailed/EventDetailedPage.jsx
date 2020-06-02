@@ -7,15 +7,16 @@ import EventDetailedSideBar from "./EventDetailedSideBar";
 import {connect} from "react-redux";
 import {withFirestore} from "react-redux-firebase";
 import {toastr} from "react-redux-toastr";
+import {objectToArray} from "../../../app/common/util/helpers";
 
-const mapState = (state, ownPops) => {
-  const eventId = ownPops.match.params.id;
+const mapState = (state, ownProps) => {
+  const eventId = ownProps.match.params.id;
   let event = {};
 
   const events = state.firestore.ordered.events;
 
   if (events && events.length) {
-    event = events.filter(event => eventId === event.id)[0];
+    event = events.filter(event => eventId === event.id)[0] || {};
   }
 
   return {event}
@@ -23,6 +24,7 @@ const mapState = (state, ownPops) => {
 
 const EventDetailedPage = ({firestore, match, history, event}) => {
   const eventId = match.params.id;
+  const attendees = event && event.attendees && objectToArray(event.attendees);
 
   useEffect(() => {
     (async () => {
@@ -32,7 +34,7 @@ const EventDetailedPage = ({firestore, match, history, event}) => {
         toastr.error('Oops', 'Event not exist')
       }
     })();
-  }, [eventId]);
+  }, [eventId, firestore, history]); // firestore и history включил т.к. было предупреждение в терминале
 
   if (!Object.values(event).length) return <p>Loading...</p>
 
@@ -44,7 +46,7 @@ const EventDetailedPage = ({firestore, match, history, event}) => {
         <EventDetailedChat/>
       </GridColumn>
       <Grid.Column width={6}>
-        <EventDetailedSideBar event={event}/>
+        <EventDetailedSideBar attendees={attendees}/>
       </Grid.Column>
     </Grid>
   );
