@@ -6,8 +6,8 @@ import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedSideBar from "./EventDetailedSideBar";
 import {connect} from "react-redux";
 import {withFirestore} from "react-redux-firebase";
-import {toastr} from "react-redux-toastr";
 import {objectToArray} from "../../../app/common/util/helpers";
+import {goingToEvent, cancelGoingToEvent} from "../../user/userActions";
 
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
@@ -25,20 +25,25 @@ const mapState = (state, ownProps) => {
   }
 };
 
-const EventDetailedPage = ({firestore, match, history, event, auth}) => {
+const actions = {
+  goingToEvent,
+  cancelGoingToEvent
+}
+
+const EventDetailedPage = ({firestore, match, history, event, auth, goingToEvent, cancelGoingToEvent}) => {
   const eventId = match.params.id;
   const attendees = event && event.attendees && objectToArray(event.attendees);
-  const isHost  = event.hostUid === auth.uid;
-  const isGoing = attendees && attendees.some(a => a.uid === auth.uid);
+  const isHost = event.hostUid === auth.uid;
+  const isGoing = attendees && attendees.some(a => a.id === auth.uid);
 
   useEffect(() => {
     (async () => {
-      const event = await firestore.get(`events/${eventId}`);
-      if (!event.exists) {
-        history.push('/events');
-        toastr.error('Oops', 'Event not exist')
-      }
+      await firestore.setListener(`events/${eventId}`);
     })();
+
+    return async () => {
+      await firestore.unsetListener(`events/${eventId}`);
+    }
   }, [eventId, firestore, history]); // firestore и history включил т.к. было предупреждение в терминале
 
   if (!Object.values(event).length) return <p>Loading...</p>
@@ -46,7 +51,12 @@ const EventDetailedPage = ({firestore, match, history, event, auth}) => {
   return (
     <Grid>
       <GridColumn width={10}>
-        <EventDetailedHeader event={event} isHost={isHost} isGoing={isGoing}/>
+        <EventDetailedHeader event={event}
+                             isHost={isHost}
+                             isGoing={isGoing}
+                             goingToEvent={goingToEvent}
+                             cancelGoingToEvent={cancelGoingToEvent}
+        />
         <EventDetailedInfo event={event}/>
         <EventDetailedChat/>
       </GridColumn>
@@ -57,4 +67,4 @@ const EventDetailedPage = ({firestore, match, history, event, auth}) => {
   );
 };
 
-export default withFirestore(connect(mapState)(EventDetailedPage));
+export default withFirestore(connect(mapState, actions)(EventDetailedPage));

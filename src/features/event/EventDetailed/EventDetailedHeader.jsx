@@ -3,7 +3,7 @@ import {Button, Header, Image, Item, Segment} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import {format} from "date-fns";
 
-const EventDetailedHeader = ({event, isHost, isGoing}) => {
+const EventDetailedHeader = ({event, isHost, isGoing, goingToEvent, cancelGoingToEvent}) => {
 
   const eventImageStyle = {
     filter: 'brightness(30%)'
@@ -46,8 +46,8 @@ const EventDetailedHeader = ({event, isHost, isGoing}) => {
         <Segment attached="bottom" clearing>
           {!isHost && <>
             {isGoing ?
-            <Button>Cancel My Place</Button> :
-            <Button color="teal">JOIN THIS EVENT</Button>}
+            <Button onClick={() => cancelGoingToEvent(event)}>Cancel My Place</Button> :
+            <Button color="teal" onClick={() => goingToEvent(event)}>JOIN THIS EVENT</Button>}
           </>}
 
           {isHost && <Button as={Link} to={`/manage/${event.id}`} color="orange" floated="right">
