@@ -8,7 +8,6 @@ import TextArea from "../../../app/common/form/TextArea";
 import SelectInput from "../../../app/common/form/SelectInput";
 import {combineValidators, composeValidators, isRequired, hasLengthGreaterThan} from 'revalidate'
 import DateInput from "../../../app/common/form/DateInput";
-import {toastr} from "react-redux-toastr";
 import {compose} from "redux";
 import {withFirestore} from "react-redux-firebase";
 
@@ -64,6 +63,10 @@ const EventForm = ({createEvent, updateEvent, cancelToggle,
     (async () => {
       await firestore.setListener(`events/${eventId}`);
     })();
+
+    return async () => {
+      await firestore.unsetListener(`events/${eventId}`);
+    }
   }, [eventId, firestore, history]); // firestore и history включил т.к. было предупреждение в терминале
 
   const onFormSubmit = async (values) => {
@@ -111,13 +114,13 @@ const EventForm = ({createEvent, updateEvent, cancelToggle,
                       () => history.push(`/events`)
                     }
             >Cancel</Button>
-            <Button
+            {initialValues.id && <Button
               type='button'
               color={event.cancelled ? 'green' : 'red'}
               content={event.cancelled ? 'Reactivate event' : 'Cancel event'}
               floated='right'
               onClick={() => cancelToggle(!event.cancelled, event.id)}
-            />
+            />}
           </Form>
         </Segment>
       </GridColumn>

@@ -3,7 +3,7 @@ import {Button, Header, Image, Item, Segment} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import {format} from "date-fns";
 
-const EventDetailedHeader = ({event}) => {
+const EventDetailedHeader = ({event, isHost, isGoing}) => {
 
   const eventImageStyle = {
     filter: 'brightness(30%)'
@@ -21,7 +21,7 @@ const EventDetailedHeader = ({event}) => {
   return (
     <div>
       <Segment.Group>
-        <Segment basic attached="top" style={{ padding: '0' }}>
+        <Segment basic attached="top" style={{padding: '0'}}>
           <Image src={`/assets/categoryImages/${event.category}.jpg`} fluid style={eventImageStyle}/>
 
           <Segment basic style={eventImageTextStyle}>
@@ -31,7 +31,7 @@ const EventDetailedHeader = ({event}) => {
                   <Header
                     size="huge"
                     content={event.title}
-                    style={{ color: 'white' }}
+                    style={{color: 'white'}}
                   />
                   <p>{format(event.date.toDate(), 'EEEE do LLL')} at {format(event.date.toDate(), 'h:mm a')}</p>
                   <p>
@@ -43,13 +43,16 @@ const EventDetailedHeader = ({event}) => {
           </Segment>
         </Segment>
 
-        <Segment attached="bottom">
-          <Button>Cancel My Place</Button>
-          <Button color="teal">JOIN THIS EVENT</Button>
+        <Segment attached="bottom" clearing>
+          {!isHost && <>
+            {isGoing ?
+            <Button>Cancel My Place</Button> :
+            <Button color="teal">JOIN THIS EVENT</Button>}
+          </>}
 
-          <Button as={Link} to={`/manage/${event.id}`} color="orange" floated="right">
+          {isHost && <Button as={Link} to={`/manage/${event.id}`} color="orange" floated="right">
             Manage Event
-          </Button>
+          </Button>}
         </Segment>
       </Segment.Group>
     </div>

@@ -19,12 +19,17 @@ const mapState = (state, ownProps) => {
     event = events.filter(event => eventId === event.id)[0] || {};
   }
 
-  return {event}
+  return {
+    event,
+    auth: state.firebase.auth
+  }
 };
 
-const EventDetailedPage = ({firestore, match, history, event}) => {
+const EventDetailedPage = ({firestore, match, history, event, auth}) => {
   const eventId = match.params.id;
   const attendees = event && event.attendees && objectToArray(event.attendees);
+  const isHost  = event.hostUid === auth.uid;
+  const isGoing = attendees && attendees.some(a => a.uid === auth.uid);
 
   useEffect(() => {
     (async () => {
@@ -41,7 +46,7 @@ const EventDetailedPage = ({firestore, match, history, event}) => {
   return (
     <Grid>
       <GridColumn width={10}>
-        <EventDetailedHeader event={event}/>
+        <EventDetailedHeader event={event} isHost={isHost} isGoing={isGoing}/>
         <EventDetailedInfo event={event}/>
         <EventDetailedChat/>
       </GridColumn>
