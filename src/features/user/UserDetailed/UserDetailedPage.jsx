@@ -2,30 +2,60 @@ import React from 'react';
 import {Button, Card, Grid, Header, Icon, Image, Item, List, Menu, Segment, Loader} from "semantic-ui-react";
 import {connect} from "react-redux";
 import {differenceInYears, format} from 'date-fns';
-import { isLoaded } from 'react-redux-firebase'
-import {firestoreConnect} from "react-redux-firebase";
+import {isLoaded} from 'react-redux-firebase'
+import {firestoreConnect, isEmpty} from "react-redux-firebase";
 import {compose} from "redux";
 import {Link} from "react-router-dom";
 
-const mapState = (state) => ({
-  auth: state.firebase.auth,
-  profile: state.firebase.profile,
-  images: state.firestore.ordered.images,
-})
+const mapState = (state, ownProps) => {
+  let auth = state.firebase.auth;
+  let userUid = null;
+  let profile = {};
 
-const query = ({auth}) => {
-  return [
-    {
-      collection: 'users',
-      doc: auth.uid,
-      subcollections: [{collection: 'images'}],
-      storeAs: 'images'
-    }
-  ]
+  if (ownProps.match.params.id === auth.uid) {
+    profile = state.firebase.profile;
+  } else {
+    userUid = ownProps.match.params.id;
+    profile = !isEmpty(state.firestore.ordered.profile) && state.firestore.ordered.profile[0];
+  }
+
+  return {
+    auth,
+    userUid,
+    profile,
+    images: state.firestore.ordered.images,
+  }
+}
+
+const query = ({auth, userUid}) => {
+  if (userUid) {
+    return [
+      {
+        collection: 'users',
+        doc: userUid,
+        storeAs: 'profile'
+      },
+      {
+        collection: 'users',
+        doc: userUid,
+        subcollections: [{collection: 'images'}],
+        storeAs: 'images'
+      }
+    ]
+  } else {
+    return [
+      {
+        collection: 'users',
+        doc: auth.uid,
+        subcollections: [{collection: 'images'}],
+        storeAs: 'images'
+      }
+    ]
+  }
 }
 
 const UserDetailedPage = ({profile, images}) => {
-  if (!isLoaded(profile)) return <Loader disabled/>
+  if (!isLoaded(profile) || !profile) return <Loader disabled/>
 
   return (
     <Grid>
@@ -39,7 +69,9 @@ const UserDetailedPage = ({profile, images}) => {
                 <br/>
                 <Header as='h3'>{profile.occupation}</Header>
                 <br/>
-                <Header as='h3'>{profile.dateOfBirth ? differenceInYears(new Date(), profile.dateOfBirth.toDate()) : 'Unknown age'}, Lives in Solar System, Milky Way</Header>
+                <Header
+                  as='h3'>{profile.dateOfBirth ? differenceInYears(new Date(), profile.dateOfBirth.toDate()) : 'Unknown age'},
+                  Lives in Solar System, Milky Way</Header>
               </Item.Content>
             </Item>
           </Item.Group>
@@ -135,5 +167,5 @@ const UserDetailedPage = ({profile, images}) => {
 
 export default compose(
   connect(mapState),
-  firestoreConnect(auth => query(auth))
+  firestoreConnect((args) => query(args))
 )(UserDetailedPage);
