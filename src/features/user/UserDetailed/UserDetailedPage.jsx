@@ -11,19 +11,22 @@ const mapState = (state, ownProps) => {
   let auth = state.firebase.auth;
   let userUid = null;
   let profile = {};
+  let images = null;
 
   if (ownProps.match.params.id === auth.uid) {
     profile = state.firebase.profile;
+    images = !isEmpty(state.firestore.ordered.authUserImages) && state.firestore.ordered.authUserImages;
   } else {
     userUid = ownProps.match.params.id;
     profile = !isEmpty(state.firestore.ordered.profile) && state.firestore.ordered.profile[0];
+    images = state.firestore.ordered.images;
   }
 
   return {
     auth,
     userUid,
     profile,
-    images: state.firestore.ordered.images,
+    images
   }
 }
 
@@ -40,6 +43,12 @@ const query = ({auth, userUid}) => {
         doc: userUid,
         subcollections: [{collection: 'images'}],
         storeAs: 'images'
+      },
+      {
+        collection: "users",
+        doc: auth.uid,
+        subcollections: [{collection: 'images'}],
+        storeAs: 'authUserImages'
       }
     ]
   } else {
@@ -48,14 +57,16 @@ const query = ({auth, userUid}) => {
         collection: 'users',
         doc: auth.uid,
         subcollections: [{collection: 'images'}],
-        storeAs: 'images'
+        storeAs: 'authUserImages'
       }
     ]
   }
 }
 
-const UserDetailedPage = ({profile, images}) => {
+const UserDetailedPage = ({profile, images, auth, match}) => {
   if (!isLoaded(profile) || !profile) return <Loader disabled/>
+
+  const isCurrentUser = auth.uid === match.params.id;
 
   return (
     <Grid>
@@ -107,7 +118,10 @@ const UserDetailedPage = ({profile, images}) => {
       </Grid.Column>
       <Grid.Column width={4}>
         <Segment>
-          <Button as={Link} to={'/settings/basic'} color='teal' fluid basic content='Edit Profile'/>
+          {isCurrentUser ?
+            <Button as={Link} to={'/settings/basic'} color='teal' fluid basic content='Edit Profile'/> :
+            <Button color='teal' fluid basic content='Follow user'/>
+          }
         </Segment>
       </Grid.Column>
 
