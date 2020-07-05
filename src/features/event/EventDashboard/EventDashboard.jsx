@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Grid} from "semantic-ui-react";
 import EventList from "../EventList/EventList";
-import {createEvent, updateEvent} from "../eventActions";
+import {getEventsForDashboard} from "../eventActions";
 import {connect} from "react-redux";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import EventActivity from "../EventActivity/EventActivity";
@@ -9,16 +9,20 @@ import {firestoreConnect, isLoaded} from "react-redux-firebase";
 
 const mapStateToProps = (state) => {
   return {
-    events: state.firestore.ordered.events
+    events: state.events,
+    loading: state.async.loading
   }
 }
 const actions = {
-  createEvent,
-  updateEvent
+  getEventsForDashboard
 }
 
-const EventDashboard = ({events}) => {
-  if(!isLoaded(events)) return <LoadingComponent inverted={false}/>
+const EventDashboard = ({events, loading, getEventsForDashboard}) => {
+  useEffect(() => {
+    getEventsForDashboard();
+  }, [])
+
+  if(loading) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>
