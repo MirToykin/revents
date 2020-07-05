@@ -5,12 +5,11 @@ import {createEvent, updateEvent} from "../eventActions";
 import {connect} from "react-redux";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import EventActivity from "../EventActivity/EventActivity";
-import {firestoreConnect} from "react-redux-firebase";
+import {firestoreConnect, isLoaded} from "react-redux-firebase";
 
 const mapStateToProps = (state) => {
   return {
-    events: state.firestore.ordered.events,
-    loading: state.async.loading
+    events: state.firestore.ordered.events
   }
 }
 const actions = {
@@ -18,8 +17,8 @@ const actions = {
   updateEvent
 }
 
-const EventDashboard = ({events, loading}) => {
-  if(loading) return <LoadingComponent inverted={false}/>
+const EventDashboard = ({events}) => {
+  if(!isLoaded(events)) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>

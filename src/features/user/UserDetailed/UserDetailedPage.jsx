@@ -6,6 +6,8 @@ import {isLoaded} from 'react-redux-firebase'
 import {firestoreConnect, isEmpty} from "react-redux-firebase";
 import {compose} from "redux";
 import {Link} from "react-router-dom";
+import LazyLoad from 'react-lazyload'
+import LoadingComponent from "../../../app/layout/LoadingComponent";
 
 const mapState = (state, ownProps) => {
   let auth = state.firebase.auth;
@@ -26,7 +28,8 @@ const mapState = (state, ownProps) => {
     auth,
     userUid,
     profile,
-    images
+    images,
+    requesting: state.firestore.status.requesting
   }
 }
 
@@ -63,10 +66,13 @@ const query = ({auth, userUid}) => {
   }
 }
 
-const UserDetailedPage = ({profile, images, auth, match}) => {
+const UserDetailedPage = ({profile, images, auth, match, requesting}) => {
   if (!isLoaded(profile) || !profile) return <Loader disabled/>
 
   const isCurrentUser = auth.uid === match.params.id;
+  const loading = Object.values(requesting).some(a => a === true);
+
+  if (loading) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>
@@ -74,7 +80,9 @@ const UserDetailedPage = ({profile, images, auth, match}) => {
         <Segment>
           <Item.Group>
             <Item>
-              <Item.Image avatar size='small' src={profile.photoURL || '/assets/user.png'}/>
+              <LazyLoad height={150} placeholder={<Item.Image src='/assets/user.png'/>}>
+                <Item.Image avatar size='small' src={profile.photoURL || '/assets/user.png'}/>
+              </LazyLoad>
               <Item.Content verticalAlign='bottom'>
                 <Header as='h1'>{profile.displayName.split(' ')[0]}</Header>
                 <br/>
@@ -130,7 +138,9 @@ const UserDetailedPage = ({profile, images, auth, match}) => {
           <Header icon='image' content='Photos'/>
 
           <Image.Group size='small'>
-            {images.map(img => (<Image key={img.name} src={img.url} alt={img.name}/>))}
+            {images.map(img => (<LazyLoad key={img.name} height={150} offset={-150} placeholder={<Image src='/assets/user.png'/>}>
+              <Image src={img.url} alt={img.name}/>
+            </LazyLoad>))}
           </Image.Group>
         </Segment>
       </Grid.Column>}
