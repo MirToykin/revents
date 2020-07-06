@@ -48,20 +48,38 @@ export const cancelToggle = (cancelled, eventId) => (dispatch, getState, {getFir
         })
       }
     })
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 }
 
-export const getEventsForDashboard = () => async (dispatch, getState) => {
+export const getEventsForDashboard = (lastEvent) => async (dispatch) => {
   const today = new Date();
   const firestore = firebase.firestore();
-  const eventsQuery = firestore.collection('events').where('date', '>=', today);
+  const eventsRef = firestore.collection('events');
   let events = [];
 
   try {
     dispatch(asyncActionStart());
-    const eventsSnapshot = await eventsQuery.get();
+    let startAfter = lastEvent && await eventsRef.doc(lastEvent.id).get();
+    let query;
+
+    lastEvent ? (query = eventsRef
+        .where('date', '>=', today)
+        .orderBy('date')
+        .startAfter(startAfter)
+        .limit(2)) :
+      (query = eventsRef
+        .where('date', '>=', today)
+        .orderBy('date')
+        .limit(2));
+
+    const eventsSnapshot = await query.get();
+
+    if (!eventsSnapshot.docs.length) {
+      dispatch(asyncActionFinish());
+      return eventsSnapshot;
+    }
 
     for (let i = 0; i < eventsSnapshot.docs.length; i++) {
       let evt = {...eventsSnapshot.docs[i].data(), id: eventsSnapshot.docs[i].id};
@@ -70,6 +88,7 @@ export const getEventsForDashboard = () => async (dispatch, getState) => {
 
     dispatch({type: FETCH_EVENTS, payload: events});
     dispatch(asyncActionFinish());
+    return eventsSnapshot;
   } catch (error) {
     console.log(error);
     dispatch(asyncActionError());
