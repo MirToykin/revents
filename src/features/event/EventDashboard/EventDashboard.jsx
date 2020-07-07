@@ -19,14 +19,24 @@ const actions = {
 
 const EventDashboard = ({events, loading, getEventsForDashboard}) => {
   const [moreEvents, setMoreEvents] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [loadedEvents, setLoadedEvents] = useState([]);
+
   useEffect(() => {
     (async () => {
       let next = await  getEventsForDashboard();
       if (next && next.docs && next.docs.length >= 1) {
         setMoreEvents(true);
       }
+      setLoadingInitial(false);
     })();
   }, [getEventsForDashboard])
+
+  useEffect(() => {
+    setLoadedEvents((loadedEvents) => {
+      return [...loadedEvents, ...events];
+    })
+  }, [events])
 
   const getNextEvents = async () => {
     let lastEvent = events && events[events.length -1];
@@ -37,13 +47,19 @@ const EventDashboard = ({events, loading, getEventsForDashboard}) => {
     }
   }
 
-  if(loading) return <LoadingComponent inverted={false}/>
+  if(loadingInitial) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>
       <Grid.Column width={10}>
         <EventList events={events}/>
-        <Button onClick={getNextEvents} disabled={!moreEvents} color='green' floated='right' content='More'/>
+        <Button
+          onClick={getNextEvents}
+          loading={loading}
+          disabled={!moreEvents}
+          color='green' floated='right'
+          content='More'
+        />
       </Grid.Column>
       <Grid.Column width={6}>
         <EventActivity/>
