@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Button, Card, Grid, Header, Icon, Image, Item, List, Menu, Segment, Loader} from "semantic-ui-react";
 import {connect} from "react-redux";
 import {differenceInYears, format} from 'date-fns';
@@ -8,6 +8,7 @@ import {compose} from "redux";
 import {Link} from "react-router-dom";
 import LazyLoad from 'react-lazyload'
 import LoadingComponent from "../../../app/layout/LoadingComponent";
+import {getUserEvents} from "../userActions";
 
 const mapState = (state, ownProps) => {
   let auth = state.firebase.auth;
@@ -19,10 +20,11 @@ const mapState = (state, ownProps) => {
     profile = state.firebase.profile;
     images = !isEmpty(state.firestore.ordered.authUserImages) && state.firestore.ordered.authUserImages;
   } else {
-    userUid = ownProps.match.params.id;
     profile = !isEmpty(state.firestore.ordered.profile) && state.firestore.ordered.profile[0];
     images = state.firestore.ordered.images;
   }
+
+  userUid = ownProps.match.params.id;
 
   return {
     auth,
@@ -31,6 +33,10 @@ const mapState = (state, ownProps) => {
     images,
     requesting: state.firestore.status.requesting
   }
+}
+
+const actions = {
+  getUserEvents
 }
 
 const query = ({auth, userUid}) => {
@@ -66,7 +72,14 @@ const query = ({auth, userUid}) => {
   }
 }
 
-const UserDetailedPage = ({profile, images, auth, match, requesting}) => {
+const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, getUserEvents}) => {
+  useEffect(() => {
+    (async () => {
+      const events = await getUserEvents(userUid);
+      console.log(events);
+    })();
+  }, [userUid, getUserEvents])
+
   if (!isLoaded(profile) || !profile) return <Loader disabled/>
 
   const isCurrentUser = auth.uid === match.params.id;
@@ -190,6 +203,6 @@ const UserDetailedPage = ({profile, images, auth, match, requesting}) => {
 }
 
 export default compose(
-  connect(mapState),
+  connect(mapState, actions),
   firestoreConnect((args) => query(args))
 )(UserDetailedPage);

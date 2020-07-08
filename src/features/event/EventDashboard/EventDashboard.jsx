@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Grid, Loader} from "semantic-ui-react";
+import {Grid, Loader} from "semantic-ui-react";
 import EventList from "../EventList/EventList";
 import {getEventsForDashboard} from "../eventActions";
 import {connect} from "react-redux";
@@ -53,7 +53,7 @@ const EventDashboard = ({events, loading, getEventsForDashboard}) => {
     <Grid>
       <Grid.Column width={10}>
         <EventList
-          events={events}
+          events={loadedEvents}
           loading={loading}
           getNextEvents={getNextEvents}
           moreEvents={moreEvents}
