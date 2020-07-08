@@ -31,7 +31,9 @@ const mapState = (state, ownProps) => {
     userUid,
     profile,
     images,
-    requesting: state.firestore.status.requesting
+    requesting: state.firestore.status.requesting,
+    events: state.events,
+    eventsLoading: state.async.loading
   }
 }
 
@@ -72,7 +74,7 @@ const query = ({auth, userUid}) => {
   }
 }
 
-const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, getUserEvents}) => {
+const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, getUserEvents, events, eventsLoading}) => {
   useEffect(() => {
     (async () => {
       const events = await getUserEvents(userUid);
@@ -90,7 +92,7 @@ const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, ge
   return (
     <Grid>
       <Grid.Column width={16}>
-        <Segment>
+        <Segment loading={eventsLoading}>
           <Item.Group>
             <Item>
               <LazyLoad height={150} placeholder={<Item.Image src='/assets/user.png'/>}>
@@ -169,31 +171,20 @@ const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, ge
           </Menu>
 
           <Card.Group itemsPerRow={5}>
-
-            <Card>
-              <Image src={'/assets/categoryImages/drinks.jpg'}/>
-              <Card.Content>
-                <Card.Header textAlign='center'>
-                  Event Title
-                </Card.Header>
-                <Card.Meta textAlign='center'>
-                  28th March 2018 at 10:00 PM
-                </Card.Meta>
-              </Card.Content>
-            </Card>
-
-            <Card>
-              <Image src={'/assets/categoryImages/drinks.jpg'}/>
-              <Card.Content>
-                <Card.Header textAlign='center'>
-                  Event Title
-                </Card.Header>
-                <Card.Meta textAlign='center'>
-                  28th March 2018 at 10:00 PM
-                </Card.Meta>
-              </Card.Content>
-            </Card>
-
+              {events && events.map(event => (
+                <Card as={Link} to={`/events/${event.id}`} key={event.id}>
+                  <Image src={`/assets/categoryImages/${event.category}.jpg`}/>
+                  <Card.Content>
+                    <Card.Header textAlign='center'>
+                      {event.title}
+                    </Card.Header>
+                    <Card.Meta textAlign='center'>
+                      <div>{format(event.date && event.date.toDate(), 'dd LLL yyyy')}</div>
+                      <div>{format(event.date && event.date.toDate(), 'h:mm a')}</div>
+                    </Card.Meta>
+                  </Card.Content>
+                </Card>
+              ))}
           </Card.Group>
         </Segment>
       </Grid.Column>

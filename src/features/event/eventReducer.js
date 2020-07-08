@@ -24,7 +24,7 @@ const deleteEvent = (state, payload) => {
 }
 
 const fetchEvents = (state, payload) => {
-  return [...state, ...payload];
+  return [...payload];
 }
 
 export const eventReducer = createReducer(initialState, {
