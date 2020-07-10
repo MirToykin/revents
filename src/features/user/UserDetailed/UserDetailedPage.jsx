@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Button, Card, Grid, Header, Icon, Image, Item, List, Menu, Segment, Loader} from "semantic-ui-react";
+import {Button, Card, Grid, Header, Icon, Image, Item, List, Menu, Segment, Loader, Tab} from "semantic-ui-react";
 import {connect} from "react-redux";
 import {differenceInYears, format} from 'date-fns';
 import {isLoaded} from 'react-redux-firebase'
@@ -74,11 +74,14 @@ const query = ({auth, userUid}) => {
   }
 }
 
-const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, getUserEvents, events, eventsLoading}) => {
+const UserDetailedPage = ({
+                            profile, images, auth,
+                            match, requesting, userUid,
+                            getUserEvents, events, eventsLoading
+                          }) => {
   useEffect(() => {
     (async () => {
       const events = await getUserEvents(userUid);
-      console.log(events);
     })();
   }, [userUid, getUserEvents])
 
@@ -87,12 +90,23 @@ const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, ge
   const isCurrentUser = auth.uid === match.params.id;
   const loading = Object.values(requesting).some(a => a === true);
 
+  const panes = [
+    {menuItem: 'All events', pane: {key: 'allEvents'}},
+    {menuItem: 'Past events', pane: {key: 'pastEvents'}},
+    {menuItem: 'Future events', pane: {key: 'futureEvents'}},
+    {menuItem: 'Hosting', pane: {key: 'hosted'}}
+  ]
+
+  const changeTab = (e, data) => {
+    getUserEvents(userUid, data.activeIndex);
+  }
+
   if (loading) return <LoadingComponent inverted={false}/>
 
   return (
     <Grid>
       <Grid.Column width={16}>
-        <Segment loading={eventsLoading}>
+        <Segment>
           <Item.Group>
             <Item>
               <LazyLoad height={150} placeholder={<Item.Image src='/assets/user.png'/>}>
@@ -153,38 +167,34 @@ const UserDetailedPage = ({profile, images, auth, match, requesting, userUid, ge
           <Header icon='image' content='Photos'/>
 
           <Image.Group size='small'>
-            {images.map(img => (<LazyLoad key={img.name} height={150} offset={-150} placeholder={<Image src='/assets/user.png'/>}>
-              <Image src={img.url} alt={img.name}/>
-            </LazyLoad>))}
+            {images.map(img => (
+              <LazyLoad key={img.name} height={150} offset={-150} placeholder={<Image src='/assets/user.png'/>}>
+                <Image src={img.url} alt={img.name}/>
+              </LazyLoad>))}
           </Image.Group>
         </Segment>
       </Grid.Column>}
 
       <Grid.Column width={12}>
-        <Segment attached>
+        <Segment attached loading={eventsLoading}>
           <Header icon='calendar' content='Events'/>
-          <Menu secondary pointing>
-            <Menu.Item name='All Events' active/>
-            <Menu.Item name='Past Events'/>
-            <Menu.Item name='Future Events'/>
-            <Menu.Item name='Events Hosted'/>
-          </Menu>
-
+          <Tab onTabChange={(e, data) => changeTab(e, data)} panes={panes} menu={{secondary: true, pointing: true}}/>
+          <br/>
           <Card.Group itemsPerRow={5}>
-              {events && events.map(event => (
-                <Card as={Link} to={`/events/${event.id}`} key={event.id}>
-                  <Image src={`/assets/categoryImages/${event.category}.jpg`}/>
-                  <Card.Content>
-                    <Card.Header textAlign='center'>
-                      {event.title}
-                    </Card.Header>
-                    <Card.Meta textAlign='center'>
-                      <div>{format(event.date && event.date.toDate(), 'dd LLL yyyy')}</div>
-                      <div>{format(event.date && event.date.toDate(), 'h:mm a')}</div>
-                    </Card.Meta>
-                  </Card.Content>
-                </Card>
-              ))}
+            {events && events.map(event => (
+              <Card as={Link} to={`/events/${event.id}`} key={event.id}>
+                <Image src={`/assets/categoryImages/${event.category}.jpg`}/>
+                <Card.Content>
+                  <Card.Header textAlign='center'>
+                    {event.title}
+                  </Card.Header>
+                  <Card.Meta textAlign='center'>
+                    <div>{format(event.date && event.date.toDate(), 'dd LLL yyyy')}</div>
+                    <div>{format(event.date && event.date.toDate(), 'h:mm a')}</div>
+                  </Card.Meta>
+                </Card.Content>
+              </Card>
+            ))}
           </Card.Group>
         </Segment>
       </Grid.Column>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Grid, Loader} from "semantic-ui-react";
 import EventList from "../EventList/EventList";
 import {getEventsForDashboard} from "../eventActions";
@@ -21,25 +21,30 @@ const EventDashboard = ({events, loading, getEventsForDashboard}) => {
   const [moreEvents, setMoreEvents] = useState(false);
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadedEvents, setLoadedEvents] = useState([]);
+  const initialMount = useRef(true);
 
   useEffect(() => {
     (async () => {
       let next = await  getEventsForDashboard();
-      if (next && next.docs && next.docs.length >= 1) {
+      if (next && next.docs && next.docs.length > 1) {
         setMoreEvents(true);
+        setLoadingInitial(false);
       }
-      setLoadingInitial(false);
     })();
   }, [getEventsForDashboard])
 
   useEffect(() => {
-    setLoadedEvents((loadedEvents) => {
-      return [...loadedEvents, ...events];
-    })
+    if (initialMount.current) {
+      initialMount.current = false;
+    } else {
+      setLoadedEvents((loadedEvents) => {
+        return [...loadedEvents, ...events];
+      })
+    }
   }, [events])
 
   const getNextEvents = async () => {
-    let lastEvent = events && events[events.length -1];
+    let lastEvent = loadedEvents && loadedEvents[loadedEvents.length -1];
     let next = await getEventsForDashboard(lastEvent);
 
     if (next && next.docs && next.docs.length < 1) {
