@@ -8,6 +8,9 @@ import {connect} from "react-redux";
 import {withFirestore} from "react-redux-firebase";
 import {objectToArray} from "../../../app/common/util/helpers";
 import {goingToEvent, cancelGoingToEvent} from "../../user/userActions";
+import {addEventComment} from "../eventActions";
+import {firebaseConnect} from "react-redux-firebase";
+import {compose} from 'redux'
 
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id;
@@ -27,10 +30,11 @@ const mapState = (state, ownProps) => {
 
 const actions = {
   goingToEvent,
-  cancelGoingToEvent
+  cancelGoingToEvent,
+  addEventComment
 }
 
-const EventDetailedPage = ({firestore, match, history, event, auth, goingToEvent, cancelGoingToEvent}) => {
+const EventDetailedPage = ({firestore, match, history, event, auth, goingToEvent, cancelGoingToEvent, addEventComment}) => {
   const eventId = match.params.id;
   const attendees = event && event.attendees && objectToArray(event.attendees);
   const isHost = event.hostUid === auth.uid;
@@ -58,7 +62,7 @@ const EventDetailedPage = ({firestore, match, history, event, auth, goingToEvent
                              cancelGoingToEvent={cancelGoingToEvent}
         />
         <EventDetailedInfo event={event}/>
-        <EventDetailedChat/>
+        <EventDetailedChat addEventComment={addEventComment} eventId={event.id}/>
       </GridColumn>
       <Grid.Column width={6}>
         <EventDetailedSideBar attendees={attendees}/>
@@ -67,4 +71,7 @@ const EventDetailedPage = ({firestore, match, history, event, auth, goingToEvent
   );
 };
 
-export default withFirestore(connect(mapState, actions)(EventDetailedPage));
+export default compose(withFirestore,
+  connect(mapState, actions),
+  firebaseConnect(props => [`events_chat/${props.match.params.id}`])
+)(EventDetailedPage);
