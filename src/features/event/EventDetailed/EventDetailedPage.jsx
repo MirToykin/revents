@@ -6,7 +6,7 @@ import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedSideBar from "./EventDetailedSideBar";
 import {connect} from "react-redux";
 import {withFirestore} from "react-redux-firebase";
-import {objectToArray} from "../../../app/common/util/helpers";
+import {objectToArray, createDataTree} from "../../../app/common/util/helpers";
 import {goingToEvent, cancelGoingToEvent} from "../../user/userActions";
 import {addEventComment} from "../eventActions";
 import {firebaseConnect, isEmpty} from "react-redux-firebase";
@@ -46,6 +46,7 @@ const EventDetailedPage = ({
   const attendees = event && event.attendees && objectToArray(event.attendees);
   const isHost = event.hostUid === auth.uid;
   const isGoing = attendees && attendees.some(a => a.id === auth.uid);
+  const chatTree = !isEmpty(eventChat) && createDataTree(eventChat);
 
   useEffect(() => {
     (async () => {
@@ -69,7 +70,7 @@ const EventDetailedPage = ({
                              cancelGoingToEvent={cancelGoingToEvent}
         />
         <EventDetailedInfo event={event}/>
-        <EventDetailedChat addEventComment={addEventComment} eventId={event.id} eventChat={eventChat}/>
+        <EventDetailedChat addEventComment={addEventComment} eventId={event.id} eventChat={chatTree}/>
       </GridColumn>
       <Grid.Column width={6}>
         <EventDetailedSideBar attendees={attendees}/>

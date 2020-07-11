@@ -3,10 +3,11 @@ import {Button, Form} from "semantic-ui-react";
 import {Field, reduxForm} from "redux-form";
 import TextArea from '../../../app/common/form/TextArea'
 
-const EventDetailedChatForm = ({addEventComment, reset, handleSubmit, eventId}) => {
+const EventDetailedChatForm = ({addEventComment, reset, handleSubmit, eventId, handleCloseReplyForm, parentId}) => {
   const handleCommentSubmit = values => {
-    addEventComment(eventId, values);
+    addEventComment(eventId, values, parentId);
     reset();
+    handleCloseReplyForm && handleCloseReplyForm();
   }
 
   return (
